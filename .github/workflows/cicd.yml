@@ -48,27 +48,52 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: '16'
 
-      - name: Install dependencies
-        run: npm install
+      # - name: Install dependencies
+      #   run: npm install
 
-      - name: Load Environment Variables
-        run: | 
-          export VITE_APP_TMDB_TOKEN=${{secrets.VITE_APP_TMDB_TOKEN}}
+      # - name: Load Environment Variables
+      #   run: | 
+      #     export VITE_APP_TMDB_TOKEN=${{secrets.VITE_APP_TMDB_TOKEN}}
       
-      - name: Build the React app
-        run: npm run build
+      # - name: Build the React app
+      #   run: npm run build
 
-      - name: Deploy to EC2 Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          echo "${SSH_PRIVATE_KEY}" > private_key.pem
-          chmod 400 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r dist ${EC2_USER}@${EC2_HOST}:/var/www/vhosts/frontend/
+      # - name: Deploy to EC2 Server
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      #     EC2_HOST: ${{ secrets.EC2_HOST }}
+      #     EC2_USER: ${{ secrets.EC2_USER }}
+      #   run: |
+      #     echo "${SSH_PRIVATE_KEY}" > private_key.pem
+      #     chmod 400 private_key.pem
+      #     scp -o StrictHostKeyChecking=no -i private_key.pem -r dist ${EC2_USER}@${EC2_HOST}:/var/www/vhosts/frontend/
+
+      - name: Deploy code to EC2 server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+        EC2_USER: ${{ secrets.EC2_USER }}
+        REMOTE_WORK_DIR: /home/ubuntu/Movix # Replace with your specific directory on the server
+        DEPLOY_DIR: /var/www/vhosts/frontend # Replace with your target deployment directory
+      run: |
+        echo "${SSH_PRIVATE_KEY}" > private_key.pem
+        chmod 400 private_key.pem
+        
+        # Copy all code to the EC2 instance
+        scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* ${EC2_USER}@${EC2_HOST}:${REMOTE_WORK_DIR}/
+        
+        # Connect to EC2 and build the project in the specified directory
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${EC2_USER}@${EC2_HOST} << 'EOF'
+          cd ${REMOTE_WORK_DIR}
+          npm install
+          npm run build
+          
+          # Copy the built 'dist' folder to the deployment directory
+          sudo cp -r dist ${DEPLOY_DIR}/
+        EOF
+
