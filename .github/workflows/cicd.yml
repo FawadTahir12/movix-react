@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    runs-on: self-hosted
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
