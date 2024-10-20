@@ -49,10 +49,9 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Load Environment Variables
-        run: |
-          source /etc/self-hosted-runner/.env
-          echo "Environment variables loaded:"
-          echo "VITE_APP_TMDB_TOKEN: $VITE_APP_TMDB_TOKEN"
+        env:
+          VITE_APP_TMDB_TOKEN: ${{ secrets.VITE_APP_TMDB_TOKEN }}
+        run: echo "VITE_APP_TMDB_TOKEN ---- $VITE_APP_TMDB_TOKEN"
       
       - name: Set up Node.js
         uses: actions/setup-node@v3
