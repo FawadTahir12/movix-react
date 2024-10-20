@@ -47,12 +47,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
-      - name: Load Environment Variables
-        env:
-          VITE_APP_TMDB_TOKEN: ${{ secrets.VITE_APP_TMDB_TOKEN }}
-        run: echo "VITE_APP_TMDB_TOKEN ---- $VITE_APP_TMDB_TOKEN"
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -61,6 +56,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Load Environment Variables
+        env:
+          VITE_APP_TMDB_TOKEN: ${{ secrets.VITE_APP_TMDB_TOKEN }}
+      
       - name: Build the React app
         run: npm run build
 
