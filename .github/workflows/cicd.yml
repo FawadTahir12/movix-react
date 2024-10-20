@@ -76,5 +76,7 @@ jobs:
             npm run build
 
             # Copy the built 'dist' folder to the deployment directory
-            sudo cp -r dist ${DEPLOY_DIR}/
+            sudo cp -r dist /var/www/vhosts/frontend/
           EOF
+
+
