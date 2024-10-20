@@ -75,7 +75,7 @@ jobs:
           chmod 400 private_key.pem
           
           # Copy all code to the EC2 instance
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* ${EC2_USER}@${EC2_HOST}:${REMOTE_WORK_DIR}/
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r $(ls | grep -v private_key.pem) ${EC2_USER}@${EC2_HOST}:${REMOTE_WORK_DIR}/
           
           # Connect to EC2 and build the project in the specified directory
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${EC2_USER}@${EC2_HOST} << 'EOF'
