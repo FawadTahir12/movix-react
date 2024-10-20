@@ -57,8 +57,8 @@ jobs:
         run: npm install
 
       - name: Load Environment Variables
-        env:
-          VITE_APP_TMDB_TOKEN: ${{ secrets.VITE_APP_TMDB_TOKEN }}
+        run: | 
+          export VITE_APP_TMDB_TOKEN=${{secrets.VITE_APP_TMDB_TOKEN}}
       
       - name: Build the React app
         run: npm run build
