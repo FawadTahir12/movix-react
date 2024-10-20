@@ -42,48 +42,39 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   deploy:
-    if: github.event.pull_request.merged == true
     runs-on: self-hosted
+    if: github.event.pull_request.merged == true
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Load Environment Variables
-        run: | 
-          export VITE_APP_TMDB_TOKEN=${{secrets.VITE_APP_TMDB_TOKEN}}
-      
-      - name: Build the React app
-        run: npm run build
-
-      - name: Deploy code to EC2 server
+      - name: Set up SSH for EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          REMOTE_WORK_DIR: /home/ubuntu/Movix 
-          DEPLOY_DIR: /var/www/vhosts/frontend 
         run: |
+          # Create private key file for SSH
           echo "${SSH_PRIVATE_KEY}" > private_key.pem
           chmod 400 private_key.pem
-          
-          # Copy all code to the EC2 instance
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r $(ls | grep -v private_key.pem) ${EC2_USER}@${EC2_HOST}:${REMOTE_WORK_DIR}/
-          
-          # Connect to EC2 and build the project in the specified directory
+
+      - name: Deploy to EC2 Server
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          REMOTE_WORK_DIR: /home/ubuntu/movix-react
+          DEPLOY_DIR: /var/www/vhosts/frontend/
+        run: |
+          # Connect to EC2 instance and run deployment steps
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${EC2_USER}@${EC2_HOST} << 'EOF'
+            # Navigate to the specified directory
             cd ${REMOTE_WORK_DIR}
+
+            # Pull the latest code from the repository
+            git pull origin develop 
+
+            # Install dependencies and build the project
             npm install
             npm run build
-            
+
             # Copy the built 'dist' folder to the deployment directory
             sudo cp -r dist ${DEPLOY_DIR}/
           EOF
-
