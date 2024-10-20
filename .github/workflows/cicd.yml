@@ -63,23 +63,13 @@ jobs:
       - name: Build the React app
         run: npm run build
 
-      # - name: Deploy to EC2 Server
-      #   env:
-      #     SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-      #     EC2_HOST: ${{ secrets.EC2_HOST }}
-      #     EC2_USER: ${{ secrets.EC2_USER }}
-      #   run: |
-      #     echo "${SSH_PRIVATE_KEY}" > private_key.pem
-      #     chmod 400 private_key.pem
-      #     scp -o StrictHostKeyChecking=no -i private_key.pem -r dist ${EC2_USER}@${EC2_HOST}:/var/www/vhosts/frontend/
-
       - name: Deploy code to EC2 server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          REMOTE_WORK_DIR: /home/ubuntu/Movix # Replace with your specific directory on the server
-          DEPLOY_DIR: /var/www/vhosts/frontend # Replace with your target deployment directory
+          REMOTE_WORK_DIR: /home/ubuntu/Movix 
+          DEPLOY_DIR: /var/www/vhosts/frontend 
         run: |
           echo "${SSH_PRIVATE_KEY}" > private_key.pem
           chmod 400 private_key.pem
