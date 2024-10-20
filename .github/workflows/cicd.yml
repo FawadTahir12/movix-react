@@ -66,7 +66,7 @@ jobs:
           # Connect to EC2 instance and run deployment steps
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${EC2_USER}@${EC2_HOST} << 'EOF'
             # Navigate to the specified directory
-            cd ${REMOTE_WORK_DIR}
+            cd /home/ubuntu/movix-react
 
             # Pull the latest code from the repository
             git pull origin develop 
